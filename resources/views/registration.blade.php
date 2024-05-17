@@ -27,6 +27,12 @@
 						<span class="text-danger">{{ $errors->first('password') }}</span>
 					@endif
 				</div>
+				<div class="form-group mb-3">
+					<input type="text" name="role" class="form-control" placeholder="Role" />
+					@if($errors->has('role'))
+						<span class="text-danger">{{ $errors->first('role') }}</span>
+					@endif
+				</div>
 				<div class="d-grid mx-auto">
 					<button type="submit" class="btn btn-dark btn-block">Register</button>
 				</div>

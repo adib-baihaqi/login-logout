@@ -30,7 +30,8 @@ class SampleController extends Controller
         $request->validate([
             'name'         =>   'required', // Name is required
             'email'        =>   'required|email|unique:users', // Email is required, must be a valid email, and unique in the users table
-            'password'     =>   'required|min:6' // Password is required and must be at least 6 characters long
+            'password'     =>   'required|min:6', // Password is required and must be at least 6 characters long
+            'role'         =>   'required',//Role is required
         ]);
 
         // Retrieve all validated data
@@ -40,7 +41,8 @@ class SampleController extends Controller
         User::create([
             'name'  =>  $data['name'], // Set the name
             'email' =>  $data['email'], // Set the email
-            'password' => Hash::make($data['password']) // Hash and set the password
+            'password' => Hash::make($data['password']), // Hash and set the password
+            'role' => $data['role'],
         ]);
 
         // Redirect to the login page with a success message
@@ -48,26 +50,34 @@ class SampleController extends Controller
     }
 
     // Method to validate login input and authenticate the user
-    function validate_login(Request $request)
-    {
-        // Validate the incoming request data
-        $request->validate([
-            'email' =>  'required', // Email is required
-            'password'  =>  'required' // Password is required
-        ]);
+    public function validate_login(Request $request)
+{
+    // Validate the incoming request data
+    $request->validate([
+        'email' => 'required|email', // Email is required and must be a valid email
+        'password'=> 'required'     // Password is required
+    ]);
 
-        // Only retrieve the email and password from the request
-        $credentials = $request->only('email', 'password');
+    // Only retrieve the email and password from the request
+    $credentials = $request->only('email', 'password');
 
-        // Attempt to authenticate the user with the provided credentials
-        if(Auth::attempt($credentials))
-        {
-            return redirect('dashboard'); // If successful, redirect to the dashboard
+    // Attempt to authenticate the user with the provided credentials
+    if (Auth::attempt($credentials)) {
+        // Authentication passed...
+        $user = Auth::user(); // Get the authenticated user
+
+        // Check if the user is an admin
+        if ($user->role == 'admin') {
+            return redirect()->route('adminpage'); // Redirect to the admin page
         }
 
-        // If authentication fails, redirect back to the login page with a failure message
-        return redirect('login')->with('success', 'Login details are not valid');
+        // If the user is not an admin, redirect to the dashboard
+        return redirect()->route('dashboard');
     }
+
+    // If authentication fails, redirect back to the login page with a failure message
+    return redirect()->route('login')->with('error', 'Login details are not valid');
+}
 
     // Method to display the dashboard view if the user is authenticated
     function dashboard()
@@ -89,6 +99,12 @@ class SampleController extends Controller
         Auth::logout(); // Log out the user
 
         return Redirect('login'); // Redirect to the login page
+    }
+
+    public function adminPage()
+    {
+        // Logic for adminPage
+        return view('admin.adminpage');
     }
 }
 

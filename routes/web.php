@@ -18,18 +18,14 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::controller(SampleController::class)->group(function(){
+// Public routes
+Route::get('login', [SampleController::class, 'index'])->name('login');
+Route::get('registration', [SampleController::class, 'registration'])->name('registration');
+Route::get('logout', [SampleController::class, 'logout'])->name('logout');
+Route::post('validate_registration', [SampleController::class, 'validate_registration'])->name('sample.validate_registration');
+Route::post('validate_login', [SampleController::class, 'validate_login'])->name('sample.validate_login');
+Route::get('dashboard', [SampleController::class, 'dashboard'])->name('dashboard');
 
-    Route::get('login', 'index')->name('login');
+// Admin route
+Route::get('/admin/adminpage', [SampleController::class, 'adminPage'])->middleware('admin')->name('adminpage');
 
-    Route::get('registration', 'registration')->name('registration');
-
-    Route::get('logout', 'logout')->name('logout');
-
-    Route::post('validate_registration', 'validate_registration')->name('sample.validate_registration');
-
-    Route::post('validate_login', 'validate_login')->name('sample.validate_login');
-
-    Route::get('dashboard', 'dashboard')->name('dashboard');
-
-});
